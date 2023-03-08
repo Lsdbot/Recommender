@@ -6,3 +6,7 @@
 
 #Python cash
 *__pycache__
+
+#Excel file
+.~lock.description.xlsx#
+
