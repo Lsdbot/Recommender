@@ -1,1 +1,5 @@
+preproc:
+  change_type_columns:
+    first_column: enc_paym_0
+    last_column: enc_loans_credit_type
 

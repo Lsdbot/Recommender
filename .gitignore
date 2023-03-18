@@ -10,3 +10,9 @@
 #Excel file
 .~lock.description.xlsx#
 
+#Catboost
+notebooks/catboost_info/
+
+#Some csv files
+notebooks/eda.csv
+
