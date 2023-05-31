@@ -7,10 +7,12 @@
 #Python cash
 *__pycache__
 
-#Excel file
-.~lock.description.xlsx#
-
 #Catboost
 notebooks/catboost_info/
+
+#Model (large_file)
+models.joblib
+
+
 
 
