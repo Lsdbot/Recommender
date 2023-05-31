@@ -13,6 +13,4 @@
 #Catboost
 notebooks/catboost_info/
 
-#Some csv files
-notebooks/eda.csv
 
