@@ -8,6 +8,7 @@ import pandas as pd
 
 from math import ceil
 
+
 TRAIN_PATH = "../data/raw/train_data/"
 TEST_PATH = "../data/raw/test_data/"
 
@@ -88,9 +89,7 @@ def transform_data(data: pd.DataFrame, columns: list) -> pd.DataFrame:
     return aggregated_data.reset_index(drop=False)
 
 
-def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, n_users: 250000) -> None:
-    start_id = 0
-
+def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, n_users: int = 250000) -> None:
     with open(columns_path, 'r') as file:
         columns = yaml.load(file, yaml.FullLoader)
 
@@ -98,8 +97,12 @@ def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, 
         df = pd.read_parquet(directory_path + file)
 
         for i in range(ceil(n_users/chunk_size)):
-            data = df[(df.id >= start_id + i * chunk_size) & (df.id < (1 + i) * chunk_size)]
+            data = df[(df.id >= i * chunk_size) & (df.id < (1 + i) * chunk_size)]
 
             df_processed = transform_data(data, columns)
 
-            df_processed.to_parquet(PROCESSED_TRAIN_PATH + file)
+            df_processed.to_parquet(PROCESSED_TRAIN_PATH + file + f'.{i}')
+
+
+# get_columns_from_files(TRAIN_PATH, COLUMNS_PATH)
+# pipeline_transform(TRAIN_PATH, 125000, COLUMNS_PATH)
