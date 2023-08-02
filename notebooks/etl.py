@@ -93,16 +93,17 @@ def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, 
     with open(columns_path, 'r') as file:
         columns = yaml.load(file, yaml.FullLoader)
 
-    for file in os.listdir(directory_path):
-        df = pd.read_parquet(directory_path + file)
+    for j in range(len(os.listdir(directory_path))):
+        df = pd.read_parquet(directory_path + f"train_data_{j}.pq")
 
         for i in range(ceil(n_users/chunk_size)):
-            data = df[(df.id >= i * chunk_size) & (df.id < (1 + i) * chunk_size)]
+            data = df[(df.id >= 2 * j * chunk_size + chunk_size * i)
+                      & (df.id < 2 * j * chunk_size + chunk_size * (i + 1))]
 
             df_processed = transform_data(data, columns)
 
-            df_processed.to_parquet(PROCESSED_TRAIN_PATH + file + f'.{i}')
+            df_processed.to_parquet(PROCESSED_TRAIN_PATH + f"train_data_{j}.pq" + f'.{i}')
 
 
 # get_columns_from_files(TRAIN_PATH, COLUMNS_PATH)
-# pipeline_transform(TRAIN_PATH, 125000, COLUMNS_PATH)
+pipeline_transform(TRAIN_PATH, 125000, COLUMNS_PATH)
