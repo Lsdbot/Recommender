@@ -1,10 +1,11 @@
+import pandas as pd
+
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 
 import os
 import yaml
-
-import pandas as pd
+from typing import Literal
 
 from math import ceil
 
@@ -89,12 +90,20 @@ def transform_data(data: pd.DataFrame, columns: list) -> pd.DataFrame:
     return aggregated_data.reset_index(drop=False)
 
 
-def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, n_users: int = 250000) -> None:
+def pipeline_transform(directory_path: str, chunk_size: int,
+                       columns_path: str, transform_type: Literal["train", "test"],
+                       n_users: int = 250000) -> None:
     with open(columns_path, 'r') as file:
         columns = yaml.load(file, yaml.FullLoader)
 
     for j in range(len(os.listdir(directory_path))):
-        df = pd.read_parquet(directory_path + f"train_data_{j}.pq")
+        if transform_type == "train":
+            df = pd.read_parquet(directory_path + f"train_data_{j}.pq")
+        elif transform_type == "test":
+            df = pd.read_parquet(directory_path + f"test_data_{j}.pq")
+            df.id = df.id - 3000000
+        else:
+            raise Exception("Wrong type of transforming the data")
 
         for i in range(ceil(n_users/chunk_size)):
             data = df[(df.id >= 2 * j * chunk_size + chunk_size * i)
@@ -102,8 +111,14 @@ def pipeline_transform(directory_path: str, chunk_size: int, columns_path: str, 
 
             df_processed = transform_data(data, columns)
 
-            df_processed.to_parquet(PROCESSED_TRAIN_PATH + f"train_data_{j}.pq" + f'.{i}')
+            if transform_type == "train":
+                df_processed.to_parquet(PROCESSED_TRAIN_PATH + f"train_data_{j}.pq" + f'.{i}')
+            elif transform_type == "test":
+                df_processed.to_parquet(PROCESSED_TEST_PATH + f"test_data_{j}.pq" + f'.{i}')
+            else:
+                raise Exception("Wrong type of transforming the data")
 
 
 # get_columns_from_files(TRAIN_PATH, COLUMNS_PATH)
-pipeline_transform(TRAIN_PATH, 125000, COLUMNS_PATH)
+# pipeline_transform(TRAIN_PATH, 125000, COLUMNS_PATH, "train")
+# pipeline_transform(TEST_PATH, 125000, COLUMNS_PATH, "test")
