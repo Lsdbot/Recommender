@@ -87,7 +87,7 @@ def transform_data(data: pd.DataFrame, columns: list) -> pd.DataFrame:
     aggregated_data = encoded_data.groupby("id")[dummy_columns].sum()
     aggregated_data['rn'] = encoded_data.groupby("id")['rn'].last()
 
-    return aggregated_data.reset_index(drop=False)
+    return aggregated_data.reset_index(drop=False)[columns]
 
 
 def pipeline_transform(directory_path: str, chunk_size: int,
